@@ -28,8 +28,15 @@ def snail(lex):
         elif znak == '"':
             lex - '"'
             yield lex.token(T.STRING)
-        elif znak == '~':
-            lex.pročitaj_do('~', više_redova = True)
+        elif znak == '/':
+            if lex >= '*':
+                while True:
+                    lex.pročitaj_do('*', više_redova = True)
+                    if(lex >= '/'): break
+            elif lex >= '/':
+                lex - '\n'
+            else:
+                yield lex.token(T.PODIJELJENO)                
             lex.zanemari()
         else:
             lex.literal(T)
@@ -37,4 +44,12 @@ def snail(lex):
 
 snail('''
 print newline;
+''')
+snail('''
+print i*i; // print the square of i
+if i == v/2 then // is i the half of v?
+print newline; //yes
+else
+print "--"; //no
+endif
 ''')
