@@ -39,7 +39,7 @@ def snail(lex):
                 yield lex.token(T.PODIJELJENO)                
             lex.zanemari()
         else:
-            lex.literal(T)
+            yield lex.literal(T)
 
 
 snail('''
