@@ -28,6 +28,18 @@ def snail(lex):
         elif znak == '"':
             lex - '"'
             yield lex.token(T.STRING)
+        elif znak == '<':
+            if lex >= '=': yield lex.token(T.MANJEJ)
+            else: yield lex.token(T.MANJE)
+        elif znak == '>':
+            if lex >= '=': yield lex.token(T.VECEJ)
+            else: yield lex.token(T.VECE)
+        elif znak == '=':
+            if lex >= '=': yield lex.token(T.JJEDNAKO)
+            else: yield lex.token(T.PRIDRUZI)
+        elif znak == '!':
+            lex >> '='
+            yield lex.token(T.RAZLICITO)
         elif znak == '/':
             if lex >= '*':
                 while True:
@@ -47,7 +59,8 @@ print newline;
 ''')
 snail('''
 print i*i; // print the square of i
-if i == v/2 then // is i the half of v?
+if i != v/2 then /* is i 
+the half of v?*/
 print newline; //yes
 else
 print "--"; //no
