@@ -55,13 +55,13 @@ def snail(lex):
 class P(Parser):
     def program(p) -> 'Program': return Program(p.stmt_list())
 
-    def stmt_list -> '(assign|print|input|if|fun|ret|fn_call)*':
+    def stmt_list(p) -> '(assign|print|input|if|fun|ret|fn_call)*':
         lista = []
         while ...:        
             if p > T.IME: lista.append(p.assign())
             elif p > T.PRINT: lista.append(p.print())
             elif p > T.INPUT: lista.append(p.input())
-            elif p > T.IF: lista.append(p.if())
+            elif p > T.IF: lista.append(p.cond())
             elif p > T.FUN: lista.append(p.fun())
             elif p > T.RET: lista.append(p.ret())
             else: return lista
@@ -85,15 +85,15 @@ class P(Parser):
         variable = p >> T.IME
         return Input( variable )
     
-    def if(p):
+    def cond(p):
         p >> T.IF
         value = p.expr()
         p >> T.THEN
         then = p.stmt_list()
-        else = []        
+        instead = []        
         if p >= T.ELSE:
-            else = p.stmt_list()
-        return If( value, then, else )
+            instead = p.stmt_list()
+        return If( value, then, instead )
 
     def param_list():
         lista = []
@@ -137,7 +137,7 @@ class Input(AST):
 class If(AST):
     value: 'expr'
     then: 'stmt*'
-    else: 'stmt*'
+    instead: 'stmt*'
 
 class Function(AST):
     name: 'IME'
@@ -153,7 +153,7 @@ class Binary(AST):
     right: 'expr'
 
 class Unary(AST):
-    operator:- 
+    operator: '-' 
     right: 'expr'
 
 class Comparison(AST):
