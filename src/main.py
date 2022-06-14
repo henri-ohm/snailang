@@ -140,18 +140,17 @@ class P(Parser):
         if( operator := p >= T.MINUS ):
             right = p.expr()
             return Unary( operator, right )
-        elif( num := p >= T.BROJ ):
-            return Number( num )
-        elif( name := p >= T.IME ):
-            return Variable( name )
         else:
-            left = p.expr()
+            left = p >> {T.IME, T.BROJ}
             if operator := p >= {T.PLUS, T.MINUS, T.PUTA, T.PODIJELJENO}:
                 right = p.expr()
                 return Binary(left, operator, right)
-            elif operator := p >> {T.MANJE, T.VISE, T.MANJEJ, T.VISEJ, T.JJEDNAKO, T.RAZLICITO}:
+            elif operator := p >= {T.MANJE, T.VISE, T.MANJEJ, T.VISEJ, T.JJEDNAKO, T.RAZLICITO}:
                 right = p.expr()
                 return Comparison( left, operator, right )
+            
+            if left ^ T.IME: return Number( left )            
+            elif left ^ T.BROJ: return Variable( left )
 
 class Program(AST):
     stmt_list: 'stmt*'
@@ -181,15 +180,17 @@ class Return(AST):
 
 class Binary(AST):
     operator:'+|-|*|/'
-    left: 'expr'
-    right: 'expr'
+    left: 'IME|BROJ'
+    right: 'IME|BROJ'
 
 class Unary(AST):
     operator: '-' 
-    right: 'expr'
+    right: 'IME|BROJ'
 
 class Comparison(AST):
     operator: '<|>|<=|>=|==|!='
+    left: 'IME|BROJ'
+    right: 'IME|BROJ'
 
 class FunctionCall(AST):
     name: 'IME'
@@ -226,16 +227,15 @@ fun fib(x, y):
     i pise ih u beskonacnost ~
     print x;
     print newline;
-    fib(y, x); // ne radi jos y,x+y
+    fib(y, x+y);
 endfun
-x = 1; // jos ne radi 1/1
+x = 1/1; 
 fib(x,x);
-if x then // jos ne radi x >= 0
+if x >= 0 then 
     x = 1;
 else
     x = 2;
 endif
-
 ''')
 
 prikaz(ast)
