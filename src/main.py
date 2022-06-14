@@ -84,9 +84,42 @@ class P(Parser):
         p >> T.INPUT
         variable = p >> T.IME
         return Input( variable )
+    
     def if(p):
+        p >> T.IF
+        value = p.expr()
+        p >> T.THEN
+        then = p.stmt_list()
+        else = []        
+        if p >= T.ELSE:
+            else = p.stmt_list()
+        return If( value, then, else )
+
+    def param_list():
+        lista = []
+        if p > T.IME:      
+            while t := p >> T.IME:
+                lista.append(t)
+                if p >= T.ZAREZ: continue            
+                else: break
+        # ovdje bi trebalo baciti gresku ako je prvo sto vidi obicni zarez
+        return lista        
+
     def fun(p):
+        p >> T.FUN
+        name = p >> T.IME
+        p >> T.OOTV
+        args = p.param_list()
+        p >> T.OZATV
+        p >> T.DVOTOCKA
+        do = p.stmt_list()
+        p >> T.ENDFUN        
+        return Function( name, args, do )        
+        
     def ret(p):
+        p >> T.RETURN
+        what = p.expr()
+        return Return( what )
 
 class Program(AST):
     stmt_list: 'stmt*'
