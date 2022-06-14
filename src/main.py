@@ -235,6 +235,7 @@ if x then // jos ne radi x >= 0
 else
     x = 2;
 endif
+
 ''')
 
 prikaz(ast)
