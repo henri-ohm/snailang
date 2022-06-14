@@ -58,31 +58,39 @@ class P(Parser):
     def stmt_list(p) -> '(assign|print|input|if|fun|ret|fn_call)*':
         lista = []
         while ...:        
-            if p > T.IME: lista.append(p.assign())
-            elif p > T.PRINT: lista.append(p.print())
+            if p > T.PRINT: lista.append(p.print())
             elif p > T.INPUT: lista.append(p.input())
             elif p > T.IF: lista.append(p.cond())
             elif p > T.FUN: lista.append(p.fun())
-            elif p > T.RET: lista.append(p.ret())
+            elif p > T.RETURN: lista.append(p.ret())
+            elif name := p >= T.IME: 
+                if p > T.PRIDRUZI:                
+                    lista.append( p.assign( name ) )      
+                elif p > T.OOTV:
+                    lista.append( p.function_call( name ) )      
             else: return lista
 
-    def assign(p):
-        left = p >> T.IME
+    def assign(p, name):
+        left = name
         p >> T.PRIDRUZI
         right = p.expr()
+        p >> T.TOCKAZAREZ
         return Assign(left, right)
     
     def print(p):
         p >> T.PRINT
-        if what := p >= {T.STRING, T.NEWLINE}: 
+        if what := p >= {T.STRING, T.NEWLINE}:
+            p >> T.TOCKAZAREZ
             return Print( what )
         else: 
             what = p.expr()
+            p >> T.TOCKAZAREZ
             return Print( what )
 
     def input(p):
         p >> T.INPUT
         variable = p >> T.IME
+        p >> T.TOCKAZAREZ
         return Input( variable )
     
     def cond(p):
@@ -93,24 +101,26 @@ class P(Parser):
         instead = []        
         if p >= T.ELSE:
             instead = p.stmt_list()
+        p >> T.ENDIF
         return If( value, then, instead )
 
-    def param_list():
+    def param_list(p):
         lista = []
-        if p > T.IME:      
-            while t := p >> T.IME:
-                lista.append(t)
-                if p >= T.ZAREZ: continue            
-                else: break
-        # ovdje bi trebalo baciti gresku ako je prvo sto vidi obicni zarez
+        p >> T.OOTV
+
+        while True:
+            t = p.expr()
+            lista.append( t )
+            if p >= T.ZAREZ: continue            
+            else: break
+
+        p >> T.OZATV
         return lista        
 
     def fun(p):
         p >> T.FUN
         name = p >> T.IME
-        p >> T.OOTV
         args = p.param_list()
-        p >> T.OZATV
         p >> T.DVOTOCKA
         do = p.stmt_list()
         p >> T.ENDFUN        
@@ -120,6 +130,28 @@ class P(Parser):
         p >> T.RETURN
         what = p.expr()
         return Return( what )
+    
+    def function_call(p, name):
+        args = p.param_list()
+        p >> T.TOCKAZAREZ
+        return FunctionCall( name, args )
+
+    def expr(p):
+        if( operator := p >= T.MINUS ):
+            right = p.expr()
+            return Unary( operator, right )
+        elif( num := p >= T.BROJ ):
+            return Number( num )
+        elif( name := p >= T.IME ):
+            return Variable( name )
+        else:
+            left = p.expr()
+            if operator := p >= {T.PLUS, T.MINUS, T.PUTA, T.PODIJELJENO}:
+                right = p.expr()
+                return Binary(left, operator, right)
+            elif operator := p >> {T.MANJE, T.VISE, T.MANJEJ, T.VISEJ, T.JJEDNAKO, T.RAZLICITO}:
+                right = p.expr()
+                return Comparison( left, operator, right )
 
 class Program(AST):
     stmt_list: 'stmt*'
@@ -163,6 +195,13 @@ class FunctionCall(AST):
     name: 'IME'
     args: 'IME*'
 
+class Variable(AST):
+    name: 'IME'
+
+class Number(AST):
+    num: 'BROJ'
+
+
 
 snail('''
 fun fib(x, y):
@@ -172,13 +211,30 @@ fun fib(x, y):
     print newline;
     fib(y, x+y);
 endfun
-
 x = 1/1 // postavi x na nula
 fib(x,x)
-
 if x >= 0 then
     x = 1
 else
     x = 2
 endif
 ''')
+
+ast = P('''
+fun fib(x, y):
+    ~ ova funkcija racuna fibonacijeve brojeve
+    i pise ih u beskonacnost ~
+    print x;
+    print newline;
+    fib(y, x); // ne radi jos y,x+y
+endfun
+x = 1; // jos ne radi 1/1
+fib(x,x);
+if x then // jos ne radi x >= 0
+    x = 1;
+else
+    x = 2;
+endif
+''')
+
+prikaz(ast)
