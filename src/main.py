@@ -1,4 +1,5 @@
 from vepar import *
+from AbstractSnailTree import *
 
 
 class T(TipoviTokena):
@@ -64,24 +65,40 @@ def snail(lex):
 # fun -> FUN IME OOTV param_list OZATV DVOTOCKA stmt_list ENDFUN
 # param_list -> '' | IME | param_list ZAREZ IME
 # ret -> RETURN expr
-# fn_call -> IME OOTV param_list OZATV
+# fn_call -> IME OOTV arg_list OZATV
+# arg_list -> (IME|BROJ)*
 class P(Parser):
-    def program(p) -> "Program":
+    namef=None
+    paramsf=None
+
+    def program(p):
+        p.funkcije = Memorija(redefinicija=False)
+        return Program(p.stmt_list()), p.funkcije
+
+    def stmt_list(p) -> "Program":
         stmts = []
-        while not p > KRAJ:
+        while ...:
             if p > T.PRINT:
                 stmts.append(p.print())
+                p >> T.TOCKAZAREZ
             elif p > T.INPUT:
                 stmts.append(p.input())
+                p >> T.TOCKAZAREZ
             elif p > T.IF:
                 stmts.append(p.cond())
             elif p > T.FUN:
-                stmts.append(p.fun())
+                function = p.fun()
+                stmts.append(function)
+                p.funkcije[function.name] = function
             elif p > T.RETURN:
                 stmts.append(p.ret())
-            else:
+                p >> T.TOCKAZAREZ
+            elif p > T.IME:
                 stmts.append(p.assign())
-            p >> T.TOCKAZAREZ
+                p >> T.TOCKAZAREZ
+            else:
+                break
+
         return Program(stmts)
 
     def assign(p) -> "Assign":
@@ -116,14 +133,14 @@ class P(Parser):
 
     def fun(p) -> "Function":
         p >> T.FUN
-        name = p >> T.IME
+        p.namef = name = p >> T.IME
         p >> T.OOTV
-        args = p.param_list()
+        p.paramsf = params = p.param_list()
         p >> T.OZATV
         p >> T.DVOTOCKA
         do = p.stmt_list()
         p >> T.ENDFUN
-        return Function(name, args, do)
+        return Function(name, params, do)
 
     def param_list(p) -> "[T.IME]":
         params = []
@@ -140,126 +157,44 @@ class P(Parser):
         what = p.expr()
         return Return(what)
     
-    def fn_call(p) -> "FunctionCall":
-        name = p >> T.IME
+    def name_or_fn_call(p, name) -> "T.IME|FunctionCall":
+        if name in p.funkcije:
+            function = p.funkcije[name]
+            return FunctionCall(function, p.argument_list(function.parameters))
+        elif name == p.namef:
+            return FunctionCall(nenavedeno, p.argument_list(p.paramsf))
+        else:
+            return name
+
+    def argument_list(p, params):
+        args = []
         p >> T.OOTV
-        args = p.param_list()
+        for i, _ in enumerate(params):
+            if i:
+                p >> T.ZAREZ
+            args.append(p.expr())
         p >> T.OZATV
-        return FunctionCall(name, args)
+        return args
 
     def expr(p):
-        if operator := p >= T.MINUS:
-            right = p.expr()
-            return Unary( operator, right )
+        if op := p >= T.MINUS:
+            negated = p.expr()
+            return Unary(op, negated)
         else:
-            left = p >> {T.IME, T.BROJ}
-            if operator := p >= {T.PLUS, T.MINUS, T.PUTA, T.PODIJELJENO}:
+            left = None
+            if p >= T.OOTV:
+                left = p.expr()
+                p >> T.OZATV
+            elif p > T.BROJ:
+                left = p >> T.BROJ
+            elif left := p >= T.IME:
+                left = p.name_or_fn_call(left)
+
+            if op := p >= {T.PLUS, T.MINUS, T.PUTA, T.PODIJELJENO}:
                 right = p.expr()
-                return Binary(left, operator, right)
-            elif operator := p >= {T.MANJE, T.VISE, T.MANJEJ, T.VISEJ, T.JJEDNAKO, T.RAZLICITO}:
+                return Binary(op, left, right)
+            elif op := p >= {T.MANJE, T.VISE, T.MANJEJ, T.VISEJ, T.JJEDNAKO, T.RAZLICITO}:
                 right = p.expr()
-                return Comparison( left, operator, right )
-            
-            if left ^ T.IME: return Number( left )            
-            elif left ^ T.BROJ: return Variable( left )
+                return Comparison(op, left, right)
 
-
-class Program(AST):
-    stmt_list: "[stmt]"
-
-
-class Assign(AST):
-    ime: 'IME'
-    izraz: 'expr'
-
-
-class Print(AST):
-    what: 'expr|STRING|NEWLINE'
-
-
-class Input(AST):
-    variable: 'IME'
-
-
-class If(AST):
-    value: 'expr'
-    then: 'stmt*'
-    instead: 'stmt*'
-
-
-class Function(AST):
-    name: 'IME'
-    args: 'IME*'
-    do: 'stmt*'
-
-
-class Return(AST):
-    what: 'expr'
-
-
-class Binary(AST):
-    operator:'+|-|*|/'
-    left: 'IME|BROJ'
-    right: 'IME|BROJ'
-
-
-class Unary(AST):
-    operator: '-' 
-    right: 'IME|BROJ'
-
-
-class Comparison(AST):
-    operator: '<|>|<=|>=|==|!='
-    left: 'IME|BROJ'
-    right: 'IME|BROJ'
-
-
-class FunctionCall(AST):
-    name: 'IME'
-    args: 'IME*'
-
-
-class Variable(AST):
-    name: 'IME'
-
-
-class Number(AST):
-    num: 'BROJ'
-
-
-
-snail('''
-fun fib(x, y):
-    ~ ova funkcija racuna fibonacijeve brojeve
-    i pise ih u beskonacnost ~
-    print x;
-    print newline;
-    fib(y, x+y);
-endfun
-x = 1/1 // postavi x na nula
-fib(x,x)
-if x >= 0 then
-    x = 1
-else
-    x = 2
-endif
-''')
-
-ast = P('''
-fun fib(x, y):
-    ~ ova funkcija racuna fibonacijeve brojeve
-    i pise ih u beskonacnost ~
-    print x;
-    print newline;
-    fib(y, x+y);
-endfun
-x = 1/1; 
-fib(x,x);
-if x >= 0 then 
-    x = 1;
-else
-    x = 2;
-endif
-''')
-
-prikaz(ast)
+            return left
