@@ -52,48 +52,58 @@ def snail(lex):
             yield lex.literal(T)
 
 
+### BKG
+# program -> stmt_list
+# stmt_list -> stmt_list stmt TOCKAZ
+#            | stmt TOCKAZ
+# stmt -> assign | print | input | cond | fun | ret
+# assign -> IME PRIDRUZI expr
+# print -> PRINT NEWLINE | PRINT STRING | PRINT expr
+# input -> INPUT IME
+# cond -> IF expr THEN stmt_list (ELSE stmt_list)? ENDIF
+# fun -> FUN IME OOTV param_list OZATV DVOTOCKA stmt_list ENDFUN
+# param_list -> '' | IME | param_list ZAREZ IME
+# ret -> RETURN expr
+# fn_call -> IME OOTV param_list OZATV
 class P(Parser):
-    def program(p) -> 'Program': return Program(p.stmt_list())
+    def program(p) -> "Program":
+        stmts = []
+        while not p > KRAJ:
+            if p > T.PRINT:
+                stmts.append(p.print())
+            elif p > T.INPUT:
+                stmts.append(p.input())
+            elif p > T.IF:
+                stmts.append(p.cond())
+            elif p > T.FUN:
+                stmts.append(p.fun())
+            elif p > T.RETURN:
+                stmts.append(p.ret())
+            else:
+                stmts.append(p.assign())
+            p >> T.TOCKAZAREZ
+        return Program(stmts)
 
-    def stmt_list(p) -> '(assign|print|input|if|fun|ret|fn_call)*':
-        lista = []
-        while ...:        
-            if p > T.PRINT: lista.append(p.print())
-            elif p > T.INPUT: lista.append(p.input())
-            elif p > T.IF: lista.append(p.cond())
-            elif p > T.FUN: lista.append(p.fun())
-            elif p > T.RETURN: lista.append(p.ret())
-            elif name := p >= T.IME: 
-                if p > T.PRIDRUZI:                
-                    lista.append( p.assign( name ) )      
-                elif p > T.OOTV:
-                    lista.append( p.function_call( name ) )      
-            else: return lista
-
-    def assign(p, name):
-        left = name
+    def assign(p) -> "Assign":
+        ime = p >> T.IME
         p >> T.PRIDRUZI
-        right = p.expr()
-        p >> T.TOCKAZAREZ
-        return Assign(left, right)
+        izraz = p.expr()
+        return Assign(ime, izraz)
     
-    def print(p):
+    def print(p) -> "Print":
         p >> T.PRINT
         if what := p >= {T.STRING, T.NEWLINE}:
-            p >> T.TOCKAZAREZ
-            return Print( what )
+            return Print(what)
         else: 
             what = p.expr()
-            p >> T.TOCKAZAREZ
-            return Print( what )
+            return Print(what)
 
-    def input(p):
+    def input(p) -> "Input":
         p >> T.INPUT
-        variable = p >> T.IME
-        p >> T.TOCKAZAREZ
-        return Input( variable )
+        ime = p >> T.IME
+        return Input(ime)
     
-    def cond(p):
+    def cond(p) -> "If":
         p >> T.IF
         value = p.expr()
         p >> T.THEN
@@ -102,42 +112,43 @@ class P(Parser):
         if p >= T.ELSE:
             instead = p.stmt_list()
         p >> T.ENDIF
-        return If( value, then, instead )
+        return If(value, then, instead)
 
-    def param_list(p):
-        lista = []
-        p >> T.OOTV
-
-        while True:
-            t = p.expr()
-            lista.append( t )
-            if p >= T.ZAREZ: continue            
-            else: break
-
-        p >> T.OZATV
-        return lista        
-
-    def fun(p):
+    def fun(p) -> "Function":
         p >> T.FUN
         name = p >> T.IME
+        p >> T.OOTV
         args = p.param_list()
+        p >> T.OZATV
         p >> T.DVOTOCKA
         do = p.stmt_list()
-        p >> T.ENDFUN        
-        return Function( name, args, do )        
+        p >> T.ENDFUN
+        return Function(name, args, do)
+
+    def param_list(p) -> "[T.IME]":
+        params = []
+
+        while ime := p >= T.IME:
+            params.append(ime)
+            if not p >= T.ZAREZ:
+                break
+
+        return params
         
-    def ret(p):
+    def ret(p) -> "Return":
         p >> T.RETURN
         what = p.expr()
-        return Return( what )
+        return Return(what)
     
-    def function_call(p, name):
+    def fn_call(p) -> "FunctionCall":
+        name = p >> T.IME
+        p >> T.OOTV
         args = p.param_list()
-        p >> T.TOCKAZAREZ
-        return FunctionCall( name, args )
+        p >> T.OZATV
+        return FunctionCall(name, args)
 
     def expr(p):
-        if( operator := p >= T.MINUS ):
+        if operator := p >= T.MINUS:
             right = p.expr()
             return Unary( operator, right )
         else:
@@ -152,52 +163,65 @@ class P(Parser):
             if left ^ T.IME: return Number( left )            
             elif left ^ T.BROJ: return Variable( left )
 
+
 class Program(AST):
-    stmt_list: 'stmt*'
+    stmt_list: "[stmt]"
+
 
 class Assign(AST):
-    left: 'IME'
-    right: 'expr'
+    ime: 'IME'
+    izraz: 'expr'
+
 
 class Print(AST):
     what: 'expr|STRING|NEWLINE'
-    
+
+
 class Input(AST):
     variable: 'IME'
+
 
 class If(AST):
     value: 'expr'
     then: 'stmt*'
     instead: 'stmt*'
 
+
 class Function(AST):
     name: 'IME'
     args: 'IME*'
     do: 'stmt*'
 
+
 class Return(AST):
     what: 'expr'
+
 
 class Binary(AST):
     operator:'+|-|*|/'
     left: 'IME|BROJ'
     right: 'IME|BROJ'
 
+
 class Unary(AST):
     operator: '-' 
     right: 'IME|BROJ'
+
 
 class Comparison(AST):
     operator: '<|>|<=|>=|==|!='
     left: 'IME|BROJ'
     right: 'IME|BROJ'
 
+
 class FunctionCall(AST):
     name: 'IME'
     args: 'IME*'
 
+
 class Variable(AST):
     name: 'IME'
+
 
 class Number(AST):
     num: 'BROJ'
