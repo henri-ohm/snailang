@@ -1,20 +1,5 @@
-from vepar import *
 from AbstractSnailTree import *
-
-
-class T(TipoviTokena):
-    PLUS, MINUS, PUTA, PODIJELJENO, MANJE, VISE, PRIDRUZI, ZAREZ, TOCKAZAREZ, DVOTOCKA, OOTV, OZATV = '+-*/<>=,;:()'
-    MANJEJ, VISEJ, JJEDNAKO, RAZLICITO = '<=', '>=', '==', '!='
-    PRINT, NEWLINE, INPUT = 'print', 'newline', 'input'
-    IF, THEN, ELSE, ENDIF = 'if', 'then', 'else', 'endif'
-    FUN, ENDFUN, RETURN = 'fun', 'endfun', 'return'
-
-    class BROJ(Token):
-        pass
-    class IME(Token):
-        pass
-    class STRING(Token):
-        pass
+from src.SnailTokens import T
 
 
 @lexer
@@ -99,7 +84,7 @@ class P(Parser):
             else:
                 break
 
-        return Program(stmts)
+        return stmts
 
     def assign(p) -> "Assign":
         ime = p >> T.IME
