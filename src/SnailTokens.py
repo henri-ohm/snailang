@@ -9,13 +9,13 @@ class T(TipoviTokena):
     FUN, ENDFUN, RETURN = 'fun', 'endfun', 'return'
 
     class BROJ(Token):
-        def vrijednost(self, mem):
+        def vrijednost(self, mem, unutar):
             return int(self.sadržaj)
 
     class IME(Token):
-        def vrijednost(self, mem):
+        def vrijednost(self, mem, unutar):
             return mem[self]
 
     class STRING(Token):
-        def vrijednost(self, mem):
+        def vrijednost(self, mem, unutar):
             return self.sadržaj[1:-1]
