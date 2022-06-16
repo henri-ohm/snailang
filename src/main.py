@@ -1,5 +1,5 @@
 from AbstractSnailTree import *
-from src.SnailTokens import T
+from SnailTokens import T
 
 
 @lexer

@@ -1,5 +1,5 @@
 from vepar import *
-from src.SnailTokens import T
+from SnailTokens import T
 ### AST
 # Program: stmt_list: [stmt]
 # stmt: Assign: name:IME assigned: expr
