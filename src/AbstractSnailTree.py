@@ -156,3 +156,25 @@ class SpeedUString(AST):
             '2': "fast"
         }.get(self.speed.vrijednost(mem, unutar), "undefined")
 
+class UnaryText(AST):
+    op: 'PLUS|MINUS'
+    inside: 'SPEED|STRING'
+    def vrijednost(self, mem, unutar):
+        if inside ^ T.SPEED:
+            dif = 1 if op ^ T.PLUS else -1
+            val = self.inside.vrijednost()
+            return ( (int)val + dif) % 3
+        else:
+            if( op ^ T.PLUS )
+                return self.inside.vrijednost() + 's'
+            else:
+                return self.inside.vrijednost()[:-1]
+
+class BinaryText(AST):
+    op: 'PLUS|JJEDNAKO'
+    left: 'SPEED|STRING'
+    right: 'SPEED|STRING'
+
+    def vrijednost(self, mem, unutar):
+        if left ^ T.SPEED and right ^ T.SPEED:
+            return max( ( (int)self.left.vrijednost() + (int)self.right.vrijednost() ) % 3, 2)

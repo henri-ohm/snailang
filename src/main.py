@@ -187,3 +187,20 @@ class P(Parser):
                 return Comparison(op, left, right)
 
             return left
+
+    def text(p):
+        if op := p >= {T.PLUS, T.MINUS,}:
+            inside = p.text()
+            return UnaryText(op, inside)
+        left = None
+        if p >= T.OOTV:
+            left = p.text()
+            p >> T.OZATV
+        
+        left = p >> {T.STRING, T.SPEED}
+        if op := p >= {T.PLUS, T.JJEDNAKO}:
+            right = p.text()
+            return BinaryText(op, left, right)
+        
+        return left
+
