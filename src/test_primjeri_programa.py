@@ -146,3 +146,8 @@ print newline;
 print ^s^=="s"; //treba biti false
 print newline;
 """
+
+pr_ternarni = """
+print # 1 > 0 ? "bravo, jedan je vece od nula" ? "nesto krivo radi" ?;
+print newline;
+"""

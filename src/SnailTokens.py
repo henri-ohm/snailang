@@ -7,6 +7,7 @@ class T(TipoviTokena):
     PRINT, NEWLINE, INPUT = 'print', 'newline', 'input'
     IF, THEN, ELSE, ENDIF = 'if', 'then', 'else', 'endif'
     FUN, ENDFUN, RETURN = 'fun', 'endfun', 'return'
+    UPITNIK, HESTEG = '?', '#'
 
     class BROJ(Token):
         def vrijednost(self, mem, unutar):

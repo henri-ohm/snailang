@@ -182,7 +182,7 @@ class P(Parser):
                 left = p >> T.STRING
             elif p > T.SPEED:
                 left = p >> T.SPEED
-
+            
 
             if op := p >= {T.PLUS, T.MINUS, T.PUTA, T.PODIJELJENO}:
                 right = p.expr()
@@ -197,4 +197,12 @@ class P(Parser):
                 
                 return Comparison(op, left, right)
 
+            if p >= T.HESTEG:
+                first = p.expr()
+                p >> T.UPITNIK
+                second = p.expr()
+                p >> T.UPITNIK
+                third = p.expr()
+                p >> T.UPITNIK
+                return Ternary(first, second, third)
             return left

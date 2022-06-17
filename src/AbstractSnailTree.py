@@ -176,4 +176,17 @@ class Comparison(AST):
 
         return res
 
+class Ternary(AST):
+    first: 'expr'
+    second: 'expr'
+    third: 'expr'
+
+    def vrijednost(self, mem, unutar):
+        x = self.first.vrijednost(mem, unutar)
+        y = self.second.vrijednost(mem, unutar)
+        z = self.third.vrijednost(mem, unutar)
+        return y if x else z
+
+
+
 class Povratak(NelokalnaKontrolaToka): """Povratak iz funkcije."""
