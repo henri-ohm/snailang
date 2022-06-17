@@ -22,6 +22,10 @@ def snail(lex):
         elif znak.isdecimal():
             lex.prirodni_broj(znak)
             yield lex.token(T.BROJ)
+        elif znak == '^':
+            lex >> {'0', '1', '2'}
+            lex >> '^'
+            yield lex.token(T.SPEED)
         elif znak == '"':
             lex - '"'
             yield lex.token(T.STRING)
@@ -94,7 +98,7 @@ class P(Parser):
     
     def print(p) -> "Print":
         p >> T.PRINT
-        if what := p >= {T.STRING, T.NEWLINE}:
+        if what := p >= {T.STRING, T.NEWLINE, T.SPEED}:
             return Print(what)
         else: 
             what = p.expr()

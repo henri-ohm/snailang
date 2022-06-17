@@ -34,6 +34,8 @@ class Print(AST):
     def izvrsi(self, mem, unutar):
         if self.what ^ T.NEWLINE:
             print()
+        elif self.what ^ T.SPEED:
+            print( SpeedUString(self.what).vrijednost(mem, unutar) )
         else:
             print(self.what.vrijednost(mem, unutar), end='')
 
@@ -135,3 +137,22 @@ class Comparison(AST):
         return res
 
 class Povratak(NelokalnaKontrolaToka): """Povratak iz funkcije."""
+
+class StringUSpeed(AST):
+    string: 'STRING'
+    def vrijednost(self, mem, unutar):
+        arg = len(self.vrijednost())
+        if arg in range(0,5): res = '0'
+        elif arg in range(5,10): res = '1'
+        else: res = '2'
+        return res
+
+class SpeedUString(AST):
+    speed: 'SPEED'
+    def vrijednost(self, mem, unutar):
+        return {
+            '0': "slow",
+            '1': "normal",
+            '2': "fast"
+        }.get(self.speed.vrijednost(mem, unutar), "undefined")
+

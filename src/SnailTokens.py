@@ -16,6 +16,12 @@ class T(TipoviTokena):
         def vrijednost(self, mem, unutar):
             return mem[self]
 
+    class SPEED(Token):
+        def vrijednost(self, mem, unutar):
+            return self.sadržaj[1:-1]
+
     class STRING(Token):
         def vrijednost(self, mem, unutar):
             return self.sadržaj[1:-1]
+
+    
