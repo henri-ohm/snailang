@@ -3,7 +3,7 @@ from SnailTokens import T
 ### AST
 # Program: stmt_list: [stmt]
 # stmt: Assign: name:IME assigned: expr
-#       Print: what:expr|STRING|NEWLINE
+#       Print: what:expr|NEWLINE
 #       Input: where:IME
 #       If: cond:expr then:[stmt] else:[stmt]
 #       Function: name:IME params:[IME] body: [stmt]
@@ -30,12 +30,10 @@ class Assign(AST):
 
 
 class Print(AST):
-    what: 'expr|STRING|NEWLINE'
+    what: 'expr|NEWLINE'
     def izvrsi(self, mem, unutar):
         if self.what ^ T.NEWLINE:
             print()
-        elif self.what ^ T.SPEED:
-            print( SpeedUString(self.what).vrijednost(mem, unutar) )
         else:
             print(self.what.vrijednost(mem, unutar), end='')
 
@@ -98,6 +96,12 @@ class Binary(AST):
     def vrijednost(self, mem, unutar):
         x = self.left.vrijednost(mem, unutar)
         y = self.right.vrijednost(mem, unutar)
+        
+        #za stringove definirano plus i minus
+        #plus je klasična konkatenacija
+        #minus je konkatenacija s reverzom drugog
+
+
         if self.op ^ T.PLUS: return x + y
         elif self.op ^ T.MINUS: return x - y
         elif self.op ^ T.PUTA: return x * y
@@ -105,11 +109,27 @@ class Binary(AST):
 
 
 class Unary(AST):
-    operator: '-'
+    operator: '+-'
     right: 'expr'
     def vrijednost(self, mem, unutar):
         rval = self.right.vrijednost(mem, unutar)
-        return -rval
+        if self.right ^ T.SPEED:
+            if self.operator ^ T.PLUS:
+                return {
+                    's': 'n',
+                    'n': 'f',
+                    'f': 'f'
+                }[self.operator.vrijednost()]
+            else:
+                return {
+                    's': 's',
+                    'n': 's',
+                    'f': 'n'
+                }[self.operator.vrijednost()]
+        elif self.right ^ T.STRING:
+            return rval if self.operator ^ T.PLUS else rval[::-1]
+
+        return rval if self.operator ^ T.PLUS else -rval
 
 
 class Comparison(AST):
@@ -137,44 +157,3 @@ class Comparison(AST):
         return res
 
 class Povratak(NelokalnaKontrolaToka): """Povratak iz funkcije."""
-
-class StringUSpeed(AST):
-    string: 'STRING'
-    def vrijednost(self, mem, unutar):
-        arg = len(self.vrijednost())
-        if arg in range(0,5): res = '0'
-        elif arg in range(5,10): res = '1'
-        else: res = '2'
-        return res
-
-class SpeedUString(AST):
-    speed: 'SPEED'
-    def vrijednost(self, mem, unutar):
-        return {
-            '0': "slow",
-            '1': "normal",
-            '2': "fast"
-        }.get(self.speed.vrijednost(mem, unutar), "undefined")
-
-class UnaryText(AST):
-    op: 'PLUS|MINUS'
-    inside: 'SPEED|STRING'
-    def vrijednost(self, mem, unutar):
-        if inside ^ T.SPEED:
-            dif = 1 if op ^ T.PLUS else -1
-            val = self.inside.vrijednost()
-            return ( (int)val + dif) % 3
-        else:
-            if( op ^ T.PLUS )
-                return self.inside.vrijednost() + 's'
-            else:
-                return self.inside.vrijednost()[:-1]
-
-class BinaryText(AST):
-    op: 'PLUS|JJEDNAKO'
-    left: 'SPEED|STRING'
-    right: 'SPEED|STRING'
-
-    def vrijednost(self, mem, unutar):
-        if left ^ T.SPEED and right ^ T.SPEED:
-            return max( ( (int)self.left.vrijednost() + (int)self.right.vrijednost() ) % 3, 2)

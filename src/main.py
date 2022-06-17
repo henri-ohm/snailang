@@ -23,7 +23,7 @@ def snail(lex):
             lex.prirodni_broj(znak)
             yield lex.token(T.BROJ)
         elif znak == '^':
-            lex >> {'0', '1', '2'}
+            lex >> {'s', 'n', 'f'}
             lex >> '^'
             yield lex.token(T.SPEED)
         elif znak == '"':
@@ -48,7 +48,7 @@ def snail(lex):
 #            | stmt TOCKAZ
 # stmt -> assign | print | input | cond | fun | ret
 # assign -> IME PRIDRUZI expr
-# print -> PRINT NEWLINE | PRINT STRING | PRINT expr
+# print -> PRINT NEWLINE | PRINT expr
 # input -> INPUT IME
 # cond -> IF expr THEN stmt_list (ELSE stmt_list)? ENDIF
 # fun -> FUN IME OOTV param_list OZATV DVOTOCKA stmt_list ENDFUN
@@ -98,7 +98,7 @@ class P(Parser):
     
     def print(p) -> "Print":
         p >> T.PRINT
-        if what := p >= {T.STRING, T.NEWLINE, T.SPEED}:
+        if what := p >= T.NEWLINE:
             return Print(what)
         else: 
             what = p.expr()
@@ -166,9 +166,9 @@ class P(Parser):
         return args
 
     def expr(p):
-        if op := p >= T.MINUS:
-            negated = p.expr()
-            return Unary(op, negated)
+        if op := p >= {T.PLUS, T.MINUS}:
+            inside = p.expr()
+            return Unary(op, inside)
         else:
             left = None
             if p >= T.OOTV:
@@ -178,29 +178,20 @@ class P(Parser):
                 left = p >> T.BROJ
             elif left := p >= T.IME:
                 left = p.name_or_fn_call(left)
+            elif p > T.STRING:
+                left = p >> T.STRING
+            elif p > T.SPEED:
+                left = p >> T.SPEED
+
 
             if op := p >= {T.PLUS, T.MINUS, T.PUTA, T.PODIJELJENO}:
                 right = p.expr()
+                if (left ^ {T.STRING, T.SPEED} or right ^ {T.STRING, T.SPEED}) and op ^ {T.MINUS, T.PUTA, T.PODIJELJENO}: 
+                    raise SintaksnaGreška(op, " nije definirana operacija za ", left, "i", right )
+                
                 return Binary(op, left, right)
             elif op := p >= {T.MANJE, T.VISE, T.MANJEJ, T.VISEJ, T.JJEDNAKO, T.RAZLICITO}:
                 right = p.expr()
                 return Comparison(op, left, right)
 
             return left
-
-    def text(p):
-        if op := p >= {T.PLUS, T.MINUS,}:
-            inside = p.text()
-            return UnaryText(op, inside)
-        left = None
-        if p >= T.OOTV:
-            left = p.text()
-            p >> T.OZATV
-        
-        left = p >> {T.STRING, T.SPEED}
-        if op := p >= {T.PLUS, T.JJEDNAKO}:
-            right = p.text()
-            return BinaryText(op, left, right)
-        
-        return left
-
