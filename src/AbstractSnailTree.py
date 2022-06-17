@@ -1,5 +1,6 @@
 from vepar import *
 from SnailTokens import T
+from math import ceil
 ### AST
 # Program: stmt_list: [stmt]
 # stmt: Assign: name:IME assigned: expr
@@ -97,9 +98,24 @@ class Binary(AST):
         x = self.left.vrijednost(mem, unutar)
         y = self.right.vrijednost(mem, unutar)
         
-        #za stringove definirano plus i minus
-        #plus je klasična konkatenacija
-        #minus je konkatenacija s reverzom drugog
+        #jedino plus implementiramo za sve tokene
+        #za stringove je plus konkatenacija
+        if self.left ^ T.STRING and self.right ^ T.STRING: return x + y
+
+        if self.left ^ T.STRING:
+            x = len(self.left.vrijednost(mem, unutar))
+        if self.right ^ T.STRING:
+            y = len(self.right.vrijednost(mem, unutar))
+
+        speedToNumber = { 's': -1, 'n': 0, 'f': 1}
+        numberToSpeed = {-1: 's', 0: 'n', 1: 'f'}
+        if self.right ^ T.SPEED:
+            y = speedToNumber[self.right.vrijednost(mem, unutar)]
+        if self.left ^ T.SPEED:
+            x = speedToNumber[self.left.vrijednost(mem, unutar)]
+        
+        if self.left ^ T.SPEED and self.right ^ T.SPEED:
+            return numberToSpeed[((x + y)/2)]
 
 
         if self.op ^ T.PLUS: return x + y
@@ -119,13 +135,13 @@ class Unary(AST):
                     's': 'n',
                     'n': 'f',
                     'f': 'f'
-                }[self.operator.vrijednost()]
+                }[self.right.vrijednost(mem, unutar)]
             else:
                 return {
                     's': 's',
                     'n': 's',
                     'f': 'n'
-                }[self.operator.vrijednost()]
+                }[self.right.vrijednost(mem, unutar)]
         elif self.right ^ T.STRING:
             return rval if self.operator ^ T.PLUS else rval[::-1]
 

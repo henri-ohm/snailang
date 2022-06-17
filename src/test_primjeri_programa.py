@@ -133,5 +133,12 @@ a = printaj(4); ~za sve iznad 4 python veli: maximum recursion depth exceeded~
 """
 
 pr_speed = """
-print ^s^;
+print +^s^;
+print newline;
+print ^s^+^f^;
+print newline;
+print "hehe" + " i jos jednom hehe";
+print newline;
+print ^s^ + "hehe";
+print newline;
 """
