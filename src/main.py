@@ -192,6 +192,9 @@ class P(Parser):
                 return Binary(op, left, right)
             elif op := p >= {T.MANJE, T.VISE, T.MANJEJ, T.VISEJ, T.JJEDNAKO, T.RAZLICITO}:
                 right = p.expr()
+                if (left ^ {T.STRING, T.SPEED} or right ^ {T.STRING, T.SPEED}) and op ^ {T.MANJE, T.VISE, T.MANJEJ, T.VISEJ}: 
+                    raise SintaksnaGreška(op, " nije definirana operacija za ", left, "i", right )
+                
                 return Comparison(op, left, right)
 
             return left

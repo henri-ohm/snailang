@@ -157,6 +157,10 @@ class Comparison(AST):
         y = self.right.vrijednost(mem, unutar)
         res = 0
 
+        if (self.left ^ {T.STRING, T.SPEED} or self.right ^ {T.STRING, T.SPEED}): 
+            if type(self.left) != type(self.right): return 0
+            if self.left.vrijednost(mem, unutar) == self.right.vrijednost(mem, unutar): return 1
+
         if self.op ^ T.MANJE:
             res = x < y
         elif self.op ^ T.MANJEJ:

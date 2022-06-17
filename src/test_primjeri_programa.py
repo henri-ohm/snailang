@@ -141,4 +141,8 @@ print "hehe" + " i jos jednom hehe";
 print newline;
 print ^s^ + "hehe";
 print newline;
+print ^s^==^s^;
+print newline;
+print ^s^=="s"; //treba biti false
+print newline;
 """
