@@ -1,0 +1,7 @@
+print "Unesite x: ";
+input x;
+print "Unesite y: ";
+input y;
+print "x + y = ";
+print x + y;
+print newline;

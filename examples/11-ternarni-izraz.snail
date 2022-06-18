@@ -1,0 +1,2 @@
+print # 1 > 0 ? "bravo, jedan je vece od nula" ? "nesto krivo radi" ?;
+print newline;

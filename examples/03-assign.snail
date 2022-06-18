@@ -1,0 +1,8 @@
+n = 100;
+nkopija = n;
+suman = (n*(n+1)) / 2;
+print "Suma brojeva od 1 do ";
+print n;
+print " iznosi ";
+print suman;
+print newline;

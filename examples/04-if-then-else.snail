@@ -1,0 +1,8 @@
+print "Unesite broj za lutriju: ";
+input n;
+if n == 1*2*3*4*5 then
+    print "Pun pogodak!!";
+else
+    print "Više sreće drugi put :-D";
+endif
+print newline;
