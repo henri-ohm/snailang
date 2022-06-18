@@ -1,4 +1,4 @@
-from main import snail
+from src.SnailLexer import snail
 from test_primjeri_programa import *
 
 print("-------------------------------\n")

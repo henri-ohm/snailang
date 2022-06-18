@@ -1,6 +1,6 @@
 from test_primjeri_programa import *
 from vepar import Memorija
-from main import P
+from SnailParser import P
 
 
 def izvrsi(src):
@@ -10,11 +10,12 @@ def izvrsi(src):
     program.izvrsi(mem, unutar=None)
     print("PROGRAM IZVRŠEN")
 
-#izvrsi(pr_print)
-#izvrsi(pr_io)
-#izvrsi(pr_assign)
-#izvrsi(pr_if)
-#izvrsi(pr_if2)
+
+izvrsi(pr_print)
+izvrsi(pr_io)
+izvrsi(pr_assign)
+izvrsi(pr_if)
+izvrsi(pr_if2)
 izvrsi(pr_fun)
 izvrsi(pr_fun_gauss)
 izvrsi(pr_fun_fakt)

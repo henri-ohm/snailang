@@ -1,0 +1,11 @@
+fun fakt(n):
+    if n == 0 then return 1;
+    else return n * fakt(n - 1);
+    endif
+endfun
+
+print "Unesite n: ";
+input x;
+print "n! = ";
+print fakt(x);
+print newline;

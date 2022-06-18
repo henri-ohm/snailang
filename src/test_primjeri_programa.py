@@ -105,16 +105,6 @@ print even(122);
 print newline;
 """
 
-pr_slozeniji = """
-fun fakt(n):
-    if n == 0 then return 0;
-    else return n * fakt(n);
-    endif
-endfun
-
-print fakt(10);
-"""
-
 ackermann = """
 fun ackermann(x, y):
     if x == 0 then return y+1; endif

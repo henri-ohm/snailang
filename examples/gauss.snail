@@ -1,0 +1,7 @@
+fun sumaDo(n):
+    return (n*(n+1))/2;
+endfun
+
+print "suma brojeva od 1 do 50 = ";
+print sumaDo(50);
+print newline;

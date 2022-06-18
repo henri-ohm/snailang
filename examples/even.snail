@@ -1,0 +1,16 @@
+fun even(n):
+    if n == 0 then
+        return 1;
+    else
+        if n == 1 then
+            return 0;
+        else
+            return even(n-2);
+        endif
+    endif
+endfun
+
+print even(123);
+print newline;
+print even(122);
+print newline;
