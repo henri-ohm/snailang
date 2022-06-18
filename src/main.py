@@ -44,12 +44,13 @@ def snail(lex):
 
 ### BKG
 # program -> stmt_list
-# stmt_list -> stmt_list stmt TOCKAZ
-#            | stmt TOCKAZ
-# stmt -> assign | print | input | cond | fun | ret
-# assign -> IME PRIDRUZI expr
-# print -> PRINT NEWLINE | PRINT expr
-# input -> INPUT IME
+# stmt_list -> stmt_list stmt
+#            | stmt
+# stmt -> assign | print | input | random | cond | fun | ret
+# assign -> IME PRIDRUZI expr TOCKAZ
+# print -> PRINT NEWLINE TOCKAZ | PRINT expr TOCKAZ
+# input -> INPUT IME TOCKAZ
+# random -> RANDOM BROJ MANJEJ IME MANJE BROJ TOCKAZ
 # cond -> IF expr THEN stmt_list (ELSE stmt_list)? ENDIF
 # fun -> FUN IME OOTV param_list OZATV DVOTOCKA stmt_list ENDFUN
 # param_list -> '' | IME | param_list ZAREZ IME
@@ -64,7 +65,7 @@ class P(Parser):
         p.funkcije = Memorija(redefinicija=False)
         return Program(p.stmt_list()), p.funkcije
 
-    def stmt_list(p) -> "Program":
+    def stmt_list(p) -> "[stmt]":
         stmts = []
         while ...:
             if p > T.PRINT:
@@ -72,6 +73,9 @@ class P(Parser):
                 p >> T.TOCKAZAREZ
             elif p > T.INPUT:
                 stmts.append(p.input())
+                p >> T.TOCKAZAREZ
+            elif p > T.RANDOM:
+                stmts.append(p.random())
                 p >> T.TOCKAZAREZ
             elif p > T.IF:
                 stmts.append(p.cond())
@@ -90,13 +94,13 @@ class P(Parser):
 
         return stmts
 
-    def assign(p) -> "Assign":
+    def assign(p) -> Assign:
         ime = p >> T.IME
         p >> T.PRIDRUZI
         izraz = p.expr()
         return Assign(ime, izraz)
     
-    def print(p) -> "Print":
+    def print(p) -> Print:
         p >> T.PRINT
         if what := p >= T.NEWLINE:
             return Print(what)
@@ -104,11 +108,20 @@ class P(Parser):
             what = p.expr()
             return Print(what)
 
-    def input(p) -> "Input":
+    def input(p) -> Input:
         p >> T.INPUT
         ime = p >> T.IME
         return Input(ime)
-    
+
+    def random(p) -> Random:
+        p >> T.RANDOM
+        od = p >> T.BROJ
+        p >> T.MANJEJ
+        ime = p >> T.IME
+        p >> T.MANJE
+        do = p >> T.BROJ
+        return Random(ime, od, do)
+
     def cond(p) -> "If":
         p >> T.IF
         value = p.expr()

@@ -151,3 +151,17 @@ pr_ternarni = """
 print # 1 > 0 ? "bravo, jedan je vece od nula" ? "nesto krivo radi" ?;
 print newline;
 """
+
+pr_rnd = """
+fun ponovi(koliko):
+    if koliko == 0 then return 0;
+    endif
+    random 1 <= x < 10;
+    print "rnd x -> ";
+    print x;
+    print newline;
+    return ponovi(koliko - 1);
+endfun
+
+a = ponovi(10);
+"""

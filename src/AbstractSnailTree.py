@@ -1,6 +1,7 @@
 from vepar import *
 from SnailTokens import T
 from math import ceil
+from random import randrange
 ### AST
 # Program: stmt_list: [stmt]
 # stmt: Assign: name:IME assigned: expr
@@ -48,6 +49,16 @@ class Input(AST):
         except:
             ...
         mem[self.variable] = inp
+
+
+class Random(AST):
+    ime: 'IME'
+    od: 'expr'
+    do: 'expr'
+    def izvrsi(self, mem, unutar):
+        l = self.od.vrijednost(mem, unutar)
+        r = self.do.vrijednost(mem, unutar)
+        mem[self.ime] = randrange(start=l, stop=r)
 
 
 class If(AST):

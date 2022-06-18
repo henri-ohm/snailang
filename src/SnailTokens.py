@@ -4,7 +4,7 @@ from vepar import TipoviTokena, Token
 class T(TipoviTokena):
     PLUS, MINUS, PUTA, PODIJELJENO, MANJE, VISE, PRIDRUZI, ZAREZ, TOCKAZAREZ, DVOTOCKA, OOTV, OZATV = '+-*/<>=,;:()'
     MANJEJ, VISEJ, JJEDNAKO, RAZLICITO = '<=', '>=', '==', '!='
-    PRINT, NEWLINE, INPUT = 'print', 'newline', 'input'
+    PRINT, NEWLINE, INPUT, RANDOM = 'print', 'newline', 'input', 'random'
     IF, THEN, ELSE, ENDIF = 'if', 'then', 'else', 'endif'
     FUN, ENDFUN, RETURN = 'fun', 'endfun', 'return'
     UPITNIK, HESTEG = '?', '#'
