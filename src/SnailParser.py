@@ -18,6 +18,25 @@ from SnailLexer import snail
 # ret -> RETURN expr
 # fn_call -> IME OOTV arg_list OZATV
 # arg_list -> '' | expr | arg_list ZAREZ expr
+# expr -> ( expr )
+#	|  - expr
+#	|  SPEED
+#   |  STRING
+#   |  IME
+#   |  fn_call
+#   |  expr + expr
+#   |  expr - expr
+#   |  expr * expr
+#   |  expr / expr
+#   |  expr < expr
+#   |  expr > expr
+#   |  expr <= expr
+#   |  expr >= expr
+#   |  expr == expr
+#   |  expr != expr
+#   |  fn_call
+#   |  HESTEG expr UPITNIK expr UPITNIK expr UPITNIK
+
 class P(Parser):
     namef = None
     paramsf = None
