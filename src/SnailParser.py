@@ -17,7 +17,7 @@ from SnailLexer import snail
 # param_list -> '' | IME | param_list ZAREZ IME
 # ret -> RETURN expr
 # fn_call -> IME OOTV arg_list OZATV
-# arg_list -> (IME|BROJ)*
+# arg_list -> '' | expr | arg_list ZAREZ expr
 class P(Parser):
     namef = None
     paramsf = None
